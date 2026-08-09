@@ -1,0 +1,30 @@
+# Bundled local Maven install — a tool, not project source
+apache-maven-3.9.6/
+
+# Backend build output
+backend/target/
+
+# Backend local runtime data: embedded H2 DB files + Velog session storage state
+# (velog-session.json contains live, authenticated session cookies — never commit)
+backend/data/
+
+# Screenshots (regenerated at runtime; backend's working dir is backend/, so
+# screenshot.upload.dir=uploads actually resolves to backend/uploads/)
+uploads/*
+!uploads/.gitkeep
+backend/uploads/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Local secret/profile overrides
+.env
+backend/src/main/resources/application-local.properties
+
+# IDE / OS
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
