@@ -223,11 +223,18 @@ public class VelogAutomationService {
 
                 // Second "출간하기" is the confirm panel's button (no <dialog> wrapper — just the
                 // last matching button once the panel is open). It sits behind a Cloudflare
-                // Turnstile check; see the class-level note on why we don't try to get past it.
+                // Turnstile check. Verified live: the FIRST click only kicks off the Turnstile
+                // challenge (resolves async, shows "성공!" once done) — it does not submit. A
+                // SECOND click on the same button, after Turnstile resolves, actually publishes.
+                // We never try to solve/bypass Turnstile itself — this is just clicking the same
+                // visible button twice, same as a human would if the first click didn't seem to work.
                 logs.add("최종 출간 확인...");
-                logs.add("만약 Cloudflare 보안 확인(캡차)이 뜨면, 지금 열려 있는 브라우저 창에서 직접 체크박스를 클릭해주세요. " +
-                    "자동화는 이를 대신 클릭하지 않고 최대 90초까지 기다립니다.");
-                page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("출간하기")).last().click();
+                logs.add("만약 Cloudflare 보안 확인(캡차)이 인터랙션을 요구하면, 지금 열려 있는 브라우저 창에서 직접 " +
+                    "체크박스를 클릭해주세요. 자동화는 이를 대신 클릭하지 않습니다.");
+                Locator confirmButton = page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("출간하기")).last();
+                confirmButton.click();
+                page.waitForTimeout(3000);
+                confirmButton.click();
 
                 try {
                     page.waitForURL(url -> !url.contains("/write"), new Page.WaitForURLOptions().setTimeout(90000));
