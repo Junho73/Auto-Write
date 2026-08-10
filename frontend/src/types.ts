@@ -6,6 +6,7 @@ export interface BlogPost {
 }
 
 export type PostTarget = 'MOCK' | 'VELOG';
+export type AiModel = 'claude-haiku-4-5' | 'claude-sonnet-5';
 export type ScheduleType = 'ONCE' | 'RECURRING';
 export type RunStatus = 'NEVER_RUN' | 'SUCCESS' | 'FAILURE';
 export type FailureReason = 'NONE' | 'SESSION_MISSING' | 'SESSION_EXPIRED' | 'AUTOMATION_ERROR';
@@ -28,6 +29,7 @@ export interface ScheduledJob {
   id: number;
   topic: string;
   stylePresetId: string;
+  aiModel: AiModel;
   target: PostTarget;
   scheduleType: ScheduleType;
   runAt: string | null;
@@ -44,6 +46,7 @@ export interface PostHistoryEntry {
   scheduledJobId: number | null;
   topic: string;
   stylePresetId: string;
+  aiModel: AiModel;
   title: string;
   tags: string;
   content: string;

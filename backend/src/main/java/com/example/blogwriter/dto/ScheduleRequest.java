@@ -8,6 +8,7 @@ import java.time.Instant;
 public class ScheduleRequest {
     private String topic;
     private String stylePresetId;
+    private String aiModel;
     private PostTarget target;
     private ScheduleType scheduleType;
     private Instant runAt;
@@ -27,6 +28,14 @@ public class ScheduleRequest {
 
     public void setStylePresetId(String stylePresetId) {
         this.stylePresetId = stylePresetId;
+    }
+
+    public String getAiModel() {
+        return aiModel;
+    }
+
+    public void setAiModel(String aiModel) {
+        this.aiModel = aiModel;
     }
 
     public PostTarget getTarget() {

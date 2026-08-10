@@ -2,7 +2,7 @@ package com.example.blogwriter.controller;
 
 import com.example.blogwriter.model.AutomationResult;
 import com.example.blogwriter.model.PostTarget;
-import com.example.blogwriter.service.OpenAiService;
+import com.example.blogwriter.service.ClaudeService;
 import com.example.blogwriter.service.PostPublishingService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,11 +14,11 @@ import java.util.Map;
 @RequestMapping("/api/blog")
 public class BlogApiController {
 
-    private final OpenAiService openAiService;
+    private final ClaudeService claudeService;
     private final PostPublishingService postPublishingService;
 
-    public BlogApiController(OpenAiService openAiService, PostPublishingService postPublishingService) {
-        this.openAiService = openAiService;
+    public BlogApiController(ClaudeService claudeService, PostPublishingService postPublishingService) {
+        this.claudeService = claudeService;
         this.postPublishingService = postPublishingService;
     }
 
@@ -31,9 +31,10 @@ public class BlogApiController {
             return ResponseEntity.badRequest().body(error);
         }
         String stylePresetId = request.get("stylePresetId");
+        String aiModel = request.get("aiModel");
 
         try {
-            Map<String, String> generatedPost = openAiService.generateBlogPost(topic, stylePresetId);
+            Map<String, String> generatedPost = claudeService.generateBlogPost(topic, stylePresetId, aiModel);
             return ResponseEntity.ok(generatedPost);
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
@@ -50,6 +51,7 @@ public class BlogApiController {
         String content = request.get("content");
         String topic = request.get("topic");
         String stylePresetId = request.get("stylePresetId");
+        String aiModel = request.get("aiModel");
         PostTarget target = "VELOG".equalsIgnoreCase(request.get("target")) ? PostTarget.VELOG : PostTarget.MOCK;
 
         if (title == null || title.trim().isEmpty() || content == null || content.trim().isEmpty()) {
@@ -60,7 +62,7 @@ public class BlogApiController {
 
         try {
             AutomationResult result = postPublishingService.publishPrepared(
-                topic, stylePresetId, title, tags, content, target, null);
+                topic, stylePresetId, aiModel, title, tags, content, target, null);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();

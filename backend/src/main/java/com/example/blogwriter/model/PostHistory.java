@@ -19,6 +19,8 @@ public class PostHistory {
 
     private String stylePresetId;
 
+    private String aiModel;
+
     private String title;
 
     private String tags;
@@ -80,6 +82,14 @@ public class PostHistory {
 
     public void setStylePresetId(String stylePresetId) {
         this.stylePresetId = stylePresetId;
+    }
+
+    public String getAiModel() {
+        return aiModel;
+    }
+
+    public void setAiModel(String aiModel) {
+        this.aiModel = aiModel;
     }
 
     public String getTitle() {

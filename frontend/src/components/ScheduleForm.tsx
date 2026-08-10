@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { createSchedule } from '../api';
-import type { PostTarget, ScheduleType } from '../types';
+import type { AiModel, PostTarget, ScheduleType } from '../types';
 import StylePresetPicker from './StylePresetPicker';
+import ModelPicker from './ModelPicker';
 import PostTargetToggle from './PostTargetToggle';
 import './components.css';
 
@@ -22,6 +23,7 @@ interface Props {
 export default function ScheduleForm({ onCreated }: Props) {
   const [topic, setTopic] = useState('');
   const [stylePresetId, setStylePresetId] = useState('');
+  const [aiModel, setAiModel] = useState<AiModel>('claude-haiku-4-5');
   const [target, setTarget] = useState<PostTarget>('MOCK');
   const [scheduleType, setScheduleType] = useState<ScheduleType>('ONCE');
   const [runAt, setRunAt] = useState('');
@@ -56,6 +58,7 @@ export default function ScheduleForm({ onCreated }: Props) {
       await createSchedule({
         topic,
         stylePresetId,
+        aiModel,
         target,
         scheduleType,
         runAt: scheduleType === 'ONCE' ? new Date(runAt).toISOString() : undefined,
@@ -85,6 +88,7 @@ export default function ScheduleForm({ onCreated }: Props) {
       </div>
 
       <StylePresetPicker value={stylePresetId} onChange={setStylePresetId} />
+      <ModelPicker value={aiModel} onChange={setAiModel} />
       <PostTargetToggle value={target} onChange={setTarget} />
 
       <div className="field">

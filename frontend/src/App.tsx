@@ -12,8 +12,9 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { BACKEND_URL, autoPost, fetchHistory, fetchMockPosts, fetchSchedules, generatePost } from './api';
-import type { AutomationResult, BlogPost, PostHistoryEntry, PostTarget, ScheduledJob } from './types';
+import type { AiModel, AutomationResult, BlogPost, PostHistoryEntry, PostTarget, ScheduledJob } from './types';
 import StylePresetPicker from './components/StylePresetPicker';
+import ModelPicker from './components/ModelPicker';
 import PostTargetToggle from './components/PostTargetToggle';
 import VelogSessionPanel from './components/VelogSessionPanel';
 import ScheduleForm from './components/ScheduleForm';
@@ -23,6 +24,7 @@ import PostHistoryList from './components/PostHistoryList';
 export default function App() {
   const [topic, setTopic] = useState('');
   const [stylePresetId, setStylePresetId] = useState('');
+  const [aiModel, setAiModel] = useState<AiModel>('claude-haiku-4-5');
   const [target, setTarget] = useState<PostTarget>('MOCK');
   const [title, setTitle] = useState('');
   const [tags, setTags] = useState('');
@@ -68,7 +70,7 @@ export default function App() {
     setSuccess(null);
 
     try {
-      const data = await generatePost(topic, stylePresetId);
+      const data = await generatePost(topic, stylePresetId, aiModel);
       setTitle(data.title);
       setTags(data.tags);
       setContent(data.content);
@@ -93,7 +95,7 @@ export default function App() {
     setScreenshotUrl(null);
 
     try {
-      const data: AutomationResult = await autoPost({ topic, stylePresetId, title, tags, content, target });
+      const data: AutomationResult = await autoPost({ topic, stylePresetId, aiModel, title, tags, content, target });
       setLogs(data.logs);
 
       if (data.success && data.screenshotUrl) {
@@ -125,7 +127,7 @@ export default function App() {
             Playwright Blog Autowriter
           </h1>
           <p className="text-gray-400 mt-2 text-sm md:text-base">
-            Spring Boot(Java) + Playwright + OpenAI API로 Velog 자동 포스팅을 예약/실행하는 대시보드
+            Spring Boot(Java) + Playwright + Claude API로 Velog 자동 포스팅을 예약/실행하는 대시보드
           </p>
         </div>
         <div className="flex gap-4">
@@ -157,6 +159,7 @@ export default function App() {
               />
             </div>
             <StylePresetPicker value={stylePresetId} onChange={setStylePresetId} />
+            <ModelPicker value={aiModel} onChange={setAiModel} />
             <button
               onClick={handleGeneratePost}
               disabled={isLoadingAi || isLoadingPost}

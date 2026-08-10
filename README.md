@@ -1,11 +1,11 @@
 # Playwright Blog Autowriter
 
-OpenAI로 블로그 글을 생성하고, Playwright로 Velog(또는 로컬 모의 블로그)에 자동 발행/예약하는 도구.
+Claude API로 블로그 글을 생성하고, Playwright로 Velog(또는 로컬 모의 블로그)에 자동 발행/예약하는 도구.
 
 ## 실행 준비
 
 ```bash
-export OPENAI_API_KEY=sk-...   # 필수. 없으면 백엔드 기동 실패.
+export ANTHROPIC_API_KEY=sk-ant-...   # 필수. 없으면 백엔드 기동 실패.
 ```
 
 ```bash
@@ -37,3 +37,9 @@ npx playwright codegen velog.io
 
 콘텐츠는 실제 블로그 글을 스크래핑하지 않고, 회고형/트러블슈팅형/튜토리얼형/기술설명형
 4가지 구조·톤 가이드(`StylePresetService`)를 프롬프트에 반영해 생성합니다.
+
+## AI 모델 선택
+
+생성 화면과 예약 등록 화면에서 `claude-haiku-4-5`(빠르고 저렴)와 `claude-sonnet-5`(고품질)
+중 하나를 골라 사용할 수 있습니다. `ClaudeService`는 `output_config.format`(구조화된 출력)으로
+호출해서 title/tags/content가 항상 유효한 JSON으로 오도록 보장합니다.

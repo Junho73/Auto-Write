@@ -4,6 +4,7 @@ import com.example.blogwriter.dto.ScheduleRequest;
 import com.example.blogwriter.model.ScheduleType;
 import com.example.blogwriter.model.ScheduledJob;
 import com.example.blogwriter.repository.ScheduledJobRepository;
+import com.example.blogwriter.service.ClaudeService;
 import com.example.blogwriter.service.ScheduledJobRunner;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.support.CronExpression;
@@ -41,6 +42,7 @@ public class ScheduleController {
         ScheduledJob job = new ScheduledJob();
         job.setTopic(request.getTopic());
         job.setStylePresetId(request.getStylePresetId());
+        job.setAiModel(ClaudeService.resolveModel(request.getAiModel()));
         job.setTarget(request.getTarget());
         job.setScheduleType(request.getScheduleType());
         job.setRunAt(request.getRunAt());

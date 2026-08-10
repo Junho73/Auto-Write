@@ -71,7 +71,7 @@ public class ScheduledJobRunner {
 
         try {
             AutomationResult result = postPublishingService.generateAndPublish(
-                job.getTopic(), job.getStylePresetId(), job.getTarget(), job.getId());
+                job.getTopic(), job.getStylePresetId(), job.getAiModel(), job.getTarget(), job.getId());
             job.setLastRunStatus(result.isSuccess() ? RunStatus.SUCCESS : RunStatus.FAILURE);
             job.setLastRunError(result.isSuccess() ? null : result.getFailureReason().name());
         } catch (Exception e) {

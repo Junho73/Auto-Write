@@ -18,6 +18,9 @@ public class ScheduledJob {
     @Column(nullable = false)
     private String stylePresetId;
 
+    @Column(nullable = false)
+    private String aiModel;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PostTarget target;
@@ -68,6 +71,14 @@ public class ScheduledJob {
 
     public void setStylePresetId(String stylePresetId) {
         this.stylePresetId = stylePresetId;
+    }
+
+    public String getAiModel() {
+        return aiModel;
+    }
+
+    public void setAiModel(String aiModel) {
+        this.aiModel = aiModel;
     }
 
     public PostTarget getTarget() {

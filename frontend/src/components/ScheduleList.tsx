@@ -14,6 +14,10 @@ function describeSchedule(job: ScheduledJob): string {
   return `반복 · ${job.cronExpression}`;
 }
 
+function modelLabel(aiModel: string): string {
+  return aiModel === 'claude-sonnet-5' ? 'Sonnet 5' : 'Haiku 4.5';
+}
+
 function statusBadge(job: ScheduledJob) {
   if (job.lastRunStatus === 'SUCCESS') return <span className="badge badge-success">성공</span>;
   if (job.lastRunStatus === 'FAILURE') return <span className="badge badge-error">{job.lastRunError || '실패'}</span>;
@@ -48,7 +52,9 @@ export default function ScheduleList({ jobs, onChanged }: Props) {
                 </span>
               </div>
             </div>
-            <span className="list-item-meta">{describeSchedule(job)}</span>
+            <span className="list-item-meta">
+              {describeSchedule(job)} · <span className="badge badge-muted">{modelLabel(job.aiModel)}</span>
+            </span>
             <div className="list-item-actions">
               <button className="btn btn-sm" onClick={() => handleToggle(job)}>
                 {job.enabled ? '일시정지' : '재개'}

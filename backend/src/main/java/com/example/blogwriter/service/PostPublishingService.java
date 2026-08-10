@@ -14,21 +14,21 @@ public class PostPublishingService {
 
     private final MockBlogPlaywrightService mockBlogPlaywrightService;
     private final VelogAutomationService velogAutomationService;
-    private final OpenAiService openAiService;
+    private final ClaudeService claudeService;
     private final PostHistoryRepository postHistoryRepository;
 
     public PostPublishingService(MockBlogPlaywrightService mockBlogPlaywrightService,
                                   VelogAutomationService velogAutomationService,
-                                  OpenAiService openAiService,
+                                  ClaudeService claudeService,
                                   PostHistoryRepository postHistoryRepository) {
         this.mockBlogPlaywrightService = mockBlogPlaywrightService;
         this.velogAutomationService = velogAutomationService;
-        this.openAiService = openAiService;
+        this.claudeService = claudeService;
         this.postHistoryRepository = postHistoryRepository;
     }
 
-    public AutomationResult publishPrepared(String topic, String stylePresetId, String title, String tags,
-                                             String content, PostTarget target, Long scheduledJobId) {
+    public AutomationResult publishPrepared(String topic, String stylePresetId, String aiModel, String title,
+                                             String tags, String content, PostTarget target, Long scheduledJobId) {
         Instant startedAt = Instant.now();
 
         AutomationResult result = target == PostTarget.VELOG
@@ -39,6 +39,7 @@ public class PostPublishingService {
         history.setScheduledJobId(scheduledJobId);
         history.setTopic(topic);
         history.setStylePresetId(stylePresetId);
+        history.setAiModel(aiModel);
         history.setTitle(title);
         history.setTags(tags);
         history.setContent(content);
@@ -56,10 +57,10 @@ public class PostPublishingService {
     }
 
     // Used by the scheduler: generates fresh content from the topic/style, then publishes it.
-    public AutomationResult generateAndPublish(String topic, String stylePresetId, PostTarget target,
+    public AutomationResult generateAndPublish(String topic, String stylePresetId, String aiModel, PostTarget target,
                                                 Long scheduledJobId) throws Exception {
-        Map<String, String> generated = openAiService.generateBlogPost(topic, stylePresetId);
-        return publishPrepared(topic, stylePresetId, generated.get("title"), generated.get("tags"),
+        Map<String, String> generated = claudeService.generateBlogPost(topic, stylePresetId, aiModel);
+        return publishPrepared(topic, stylePresetId, aiModel, generated.get("title"), generated.get("tags"),
             generated.get("content"), target, scheduledJobId);
     }
 }

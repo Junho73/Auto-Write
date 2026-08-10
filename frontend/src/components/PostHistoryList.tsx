@@ -6,6 +6,10 @@ interface Props {
   history: PostHistoryEntry[];
 }
 
+function modelLabel(aiModel: string): string {
+  return aiModel === 'claude-sonnet-5' ? 'Sonnet 5' : 'Haiku 4.5';
+}
+
 function badgeFor(entry: PostHistoryEntry) {
   if (entry.status === 'SUCCESS') return <span className="badge badge-success">성공</span>;
   if (entry.failureReason === 'SESSION_EXPIRED') {
@@ -37,6 +41,12 @@ export default function PostHistoryList({ history }: Props) {
             </div>
             <span className="list-item-meta">
               {entry.startedAt ? new Date(entry.startedAt).toLocaleString('ko-KR') : ''}
+              {entry.aiModel && (
+                <>
+                  {' '}
+                  · <span className="badge badge-muted">{modelLabel(entry.aiModel)}</span>
+                </>
+              )}
             </span>
             <div className="list-item-actions">
               {entry.publishedUrl && (

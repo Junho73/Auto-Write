@@ -29,16 +29,17 @@ export function fetchMockPosts(): Promise<BlogPost[]> {
   return request('/mock-blog/api/posts');
 }
 
-export function generatePost(topic: string, stylePresetId: string): Promise<Record<string, string>> {
+export function generatePost(topic: string, stylePresetId: string, aiModel: string): Promise<Record<string, string>> {
   return request('/api/blog/generate', {
     method: 'POST',
-    body: JSON.stringify({ topic, stylePresetId }),
+    body: JSON.stringify({ topic, stylePresetId, aiModel }),
   });
 }
 
 export function autoPost(payload: {
   topic: string;
   stylePresetId: string;
+  aiModel: string;
   title: string;
   tags: string;
   content: string;
@@ -57,6 +58,7 @@ export function fetchSchedules(): Promise<ScheduledJob[]> {
 export function createSchedule(payload: {
   topic: string;
   stylePresetId: string;
+  aiModel: string;
   target: string;
   scheduleType: string;
   runAt?: string;
