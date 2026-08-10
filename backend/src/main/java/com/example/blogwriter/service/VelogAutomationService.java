@@ -32,11 +32,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Every later post reuses the saved session; if it has expired, we fail clearly
  * (SESSION_EXPIRED) instead of hanging on a login page that never appears.
  *
- * NOTE: the actual Velog write-page DOM has not been seen by anyone but the user
- * (it requires their personal login). Selectors below are written defensively
- * (role/placeholder/text based) but are best-effort guesses — see "TODO calibrate"
- * comments. The user should verify/adjust these against the real page, e.g. via
- * `playwright codegen velog.io` after logging in.
+ * Calibrated 2026-08-10 against a real logged-in session: title/tags are a plain
+ * textarea + input directly on the write page (no modal); the body is a CodeMirror 5
+ * editor, so Locator.fill() does nothing useful there — content is set via its
+ * setValue() API through page.evaluate(). Clicking "출간하기" reveals a second panel
+ * (not a &lt;dialog&gt;) with its own "출간하기" button, and that panel is gated by a
+ * Cloudflare Turnstile widget. Turnstile usually passes invisibly for a real,
+ * cookie-authenticated session, but if it ever demands an interactive challenge this
+ * automation will not attempt to solve or bypass it — the confirm click just won't
+ * navigate away from /write, and postToVelog fails clearly (AUTOMATION_ERROR) with a
+ * screenshot instead of hanging.
  */
 @Service
 public class VelogAutomationService {
@@ -183,25 +188,14 @@ public class VelogAutomationService {
 
                 assertSessionStillValid(page, logs);
 
-                // TODO calibrate: confirm the real placeholder text on velog.io/write once logged in.
                 logs.add("제목 작성 중: " + title);
                 Locator titleField = page.getByPlaceholder("제목을 입력하세요").first();
                 titleField.click();
                 titleField.fill(title);
 
-                // TODO calibrate: Velog's body editor is a markdown editor, not a plain textarea.
-                logs.add("본문 내용 작성 중...");
-                Locator contentField = page.locator("[contenteditable='true'], .CodeMirror, textarea").last();
-                contentField.click();
-                contentField.fill(content);
-
-                // TODO calibrate: the publish button opens a modal with tag/series/description fields.
-                logs.add("발행(출간) 버튼 클릭...");
-                page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("출간하기")).first().click();
-
                 if (tags != null && !tags.isBlank()) {
                     logs.add("태그 입력 중: " + tags);
-                    Locator tagInput = page.getByPlaceholder("태그를 입력해주세요");
+                    Locator tagInput = page.getByPlaceholder("태그를 입력하세요");
                     for (String tag : tags.split(",")) {
                         String trimmed = tag.trim();
                         if (trimmed.isEmpty()) continue;
@@ -210,10 +204,38 @@ public class VelogAutomationService {
                     }
                 }
 
-                logs.add("최종 출간 확인...");
-                page.getByRole(AriaRole.DIALOG).getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("출간하기")).click();
+                // The body is a CodeMirror 5 instance, not a plain input/textarea/contenteditable —
+                // Locator.fill() has no effect on it. Its editor instance is reachable via the
+                // .CodeMirror DOM node's own `.CodeMirror` property; setValue() updates both
+                // CodeMirror's buffer and Velog's React state (verified against the live preview pane).
+                logs.add("본문 내용 작성 중...");
+                page.evaluate(
+                    "(text) => {" +
+                    "  const cm = document.querySelector('.CodeMirror');" +
+                    "  if (!cm || !cm.CodeMirror) throw new Error('CodeMirror editor not found on page');" +
+                    "  cm.CodeMirror.setValue(text);" +
+                    "}",
+                    content
+                );
 
-                page.waitForURL(url -> !url.contains("/write"), new Page.WaitForURLOptions().setTimeout(20000));
+                logs.add("발행(출간) 버튼 클릭...");
+                page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("출간하기")).first().click();
+
+                // Second "출간하기" is the confirm panel's button (no <dialog> wrapper — just the
+                // last matching button once the panel is open). It sits behind a Cloudflare
+                // Turnstile check; see the class-level note on why we don't try to get past it.
+                logs.add("최종 출간 확인...");
+                logs.add("만약 Cloudflare 보안 확인(캡차)이 뜨면, 지금 열려 있는 브라우저 창에서 직접 체크박스를 클릭해주세요. " +
+                    "자동화는 이를 대신 클릭하지 않고 최대 90초까지 기다립니다.");
+                page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("출간하기")).last().click();
+
+                try {
+                    page.waitForURL(url -> !url.contains("/write"), new Page.WaitForURLOptions().setTimeout(90000));
+                } catch (com.microsoft.playwright.TimeoutError e) {
+                    logs.add("90초 안에 출간 후 페이지 이동이 감지되지 않았습니다. Cloudflare 확인을 완료하지 못했거나 " +
+                        "다른 문제가 있는 것 같습니다. 스크린샷을 확인해주세요.");
+                    throw e;
+                }
                 String publishedUrl = page.url();
 
                 logs.add("최종 화면 스크린샷 캡쳐 중...");
