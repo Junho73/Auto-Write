@@ -16,14 +16,14 @@ export default function PostTargetToggle({ value, onChange }: Props) {
           className={`pill ${value === 'MOCK' ? 'active' : ''}`}
           onClick={() => onChange('MOCK')}
         >
-          모의 블로그 (테스트)
+          모의 블로그 (자동 데모)
         </button>
         <button
           type="button"
           className={`pill ${value === 'VELOG' ? 'active' : ''}`}
           onClick={() => onChange('VELOG')}
         >
-          Velog (실제)
+          Velog (직접 붙여넣기)
         </button>
       </div>
     </div>

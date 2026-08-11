@@ -9,6 +9,7 @@ import {
   CheckCircle,
   AlertCircle,
   RefreshCw,
+  Copy,
   ExternalLink
 } from 'lucide-react';
 import { BACKEND_URL, autoPost, fetchHistory, fetchMockPosts, fetchSchedules, generatePost } from './api';
@@ -16,7 +17,7 @@ import type { AiModel, AutomationResult, BlogPost, PostHistoryEntry, PostTarget,
 import StylePresetPicker from './components/StylePresetPicker';
 import ModelPicker from './components/ModelPicker';
 import PostTargetToggle from './components/PostTargetToggle';
-import VelogSessionPanel from './components/VelogSessionPanel';
+import TopicDigest from './components/TopicDigest';
 import ScheduleForm from './components/ScheduleForm';
 import ScheduleList from './components/ScheduleList';
 import PostHistoryList from './components/PostHistoryList';
@@ -32,6 +33,7 @@ export default function App() {
 
   const [isLoadingAi, setIsLoadingAi] = useState(false);
   const [isLoadingPost, setIsLoadingPost] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [logs, setLogs] = useState<string[]>([]);
   const [screenshotUrl, setScreenshotUrl] = useState<string | null>(null);
   const [mockPosts, setMockPosts] = useState<BlogPost[]>([]);
@@ -82,6 +84,12 @@ export default function App() {
     }
   };
 
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(`${title}\n\n${content}`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   const handleAutoPost = async () => {
     if (!title.trim() || !content.trim()) {
       setError('제목과 본문 내용이 채워져 있어야 합니다.');
@@ -91,28 +99,30 @@ export default function App() {
     setIsLoadingPost(true);
     setError(null);
     setSuccess(null);
-    setLogs(['자동화 프로세스 초기화 중...']);
+    setLogs(['처리 중...']);
     setScreenshotUrl(null);
 
     try {
       const data: AutomationResult = await autoPost({ topic, stylePresetId, aiModel, title, tags, content, target });
       setLogs(data.logs);
 
-      if (data.success && data.screenshotUrl) {
-        setScreenshotUrl(`${BACKEND_URL}${data.screenshotUrl}`);
+      if (data.success) {
+        if (data.screenshotUrl) {
+          setScreenshotUrl(`${BACKEND_URL}${data.screenshotUrl}`);
+        }
         setSuccess(
           target === 'VELOG'
-            ? 'Velog에 자동 포스팅이 완료되었습니다! 아래 스크린샷을 확인하세요.'
+            ? '생성 완료! 아래 "복사하기"로 복사한 뒤 Velog 새 글 작성 화면에 붙여넣어주세요.'
             : '모의 블로그에 자동 포스팅이 완료되었습니다! 아래 스크린샷을 확인하세요.'
         );
         refreshMockPosts();
         refreshHistory();
       } else {
-        setError('자동 포스팅 중 에러가 발생했습니다. 로그를 확인하세요.');
+        setError('작업 중 에러가 발생했습니다. 로그를 확인하세요.');
         refreshHistory();
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : '자동 포스팅 요청 중 네트워크 오류가 발생했습니다.');
+      setError(err instanceof Error ? err.message : '요청 중 네트워크 오류가 발생했습니다.');
       setLogs((prev) => [...prev, '오류: 백엔드 서버 연결 끊김.']);
     } finally {
       setIsLoadingPost(false);
@@ -127,7 +137,7 @@ export default function App() {
             Playwright Blog Autowriter
           </h1>
           <p className="text-gray-400 mt-2 text-sm md:text-base">
-            Spring Boot(Java) + Playwright + Claude API로 Velog 자동 포스팅을 예약/실행하는 대시보드
+            Claude API로 이번 주 토픽을 찾고 블로그 글을 생성하는 대시보드 — Velog 발행은 복사해서 직접
           </p>
         </div>
         <div className="flex gap-4">
@@ -144,6 +154,8 @@ export default function App() {
 
       <main className="max-w-7xl mx-auto" style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem' }}>
         <div style={{ flex: '1 1 560px' }}>
+          <TopicDigest onSelect={setTopic} />
+
           <section className="glass-card panel">
             <h2 className="panel-title" style={{ color: 'var(--primary)' }}>
               <Sparkles size={20} /> 1. AI 글감 및 본문 자동 생성
@@ -154,7 +166,7 @@ export default function App() {
                 type="text"
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
-                placeholder="예: Spring Boot에서 Playwright Java 사용하기, React의 상태관리 기법"
+                placeholder="위 토픽 중 하나를 고르거나 직접 입력하세요"
                 className="text-input"
               />
             </div>
@@ -214,6 +226,17 @@ export default function App() {
 
             <PostTargetToggle value={target} onChange={setTarget} />
 
+            {target === 'VELOG' && (
+              <div className="pill-row" style={{ marginBottom: '1rem' }}>
+                <button className="btn" onClick={handleCopy} disabled={!title || !content}>
+                  <Copy size={16} /> {copied ? '복사됨!' : '복사하기'}
+                </button>
+                <a href="https://velog.io/write" target="_blank" rel="noopener noreferrer" className="btn">
+                  Velog 새 글 작성 열기 <ExternalLink size={16} />
+                </a>
+              </div>
+            )}
+
             <button
               onClick={handleAutoPost}
               disabled={isLoadingPost || isLoadingAi || !title || !content}
@@ -221,17 +244,15 @@ export default function App() {
             >
               {isLoadingPost ? (
                 <>
-                  <RefreshCw className="animate-spin" size={20} /> Playwright 브라우저 자동 포스팅 구동 중...
+                  <RefreshCw className="animate-spin" size={20} /> 처리 중...
                 </>
               ) : (
                 <>
-                  <Send size={20} /> {target === 'VELOG' ? 'Velog에 지금 포스팅' : '모의 블로그에 지금 포스팅'}
+                  <Send size={20} /> {target === 'VELOG' ? '이력에 저장' : '모의 블로그에 지금 포스팅'}
                 </>
               )}
             </button>
           </section>
-
-          <VelogSessionPanel />
 
           <ScheduleForm onCreated={refreshSchedules} />
           <ScheduleList jobs={schedules} onChanged={refreshSchedules} />
@@ -253,10 +274,10 @@ export default function App() {
 
           <section className="glass-card panel" style={{ maxHeight: '350px', overflowY: 'auto' }}>
             <h2 className="panel-title" style={{ color: 'var(--primary)' }}>
-              <Terminal size={20} /> Playwright 자동화 실시간 로그
+              <Terminal size={20} /> 실시간 로그
             </h2>
             {logs.length === 0 ? (
-              <span className="empty-state">포스팅 버튼을 클릭하면 실시간 자동화 동작이 표시됩니다.</span>
+              <span className="empty-state">포스팅 버튼을 클릭하면 실시간 동작이 표시됩니다.</span>
             ) : (
               logs.map((log, index) => (
                 <div key={index} className="list-item-meta" style={{ marginBottom: '0.3rem' }}>
@@ -275,7 +296,7 @@ export default function App() {
                 <img src={screenshotUrl} alt="Playwright Capture" style={{ width: '100%', borderRadius: '12px' }} />
               </a>
             ) : (
-              <p className="empty-state">포스팅이 성공적으로 끝나면 자동 캡쳐본이 이곳에 렌더링됩니다.</p>
+              <p className="empty-state">모의 블로그 포스팅이 성공하면 자동 캡쳐본이 이곳에 렌더링됩니다.</p>
             )}
           </section>
 

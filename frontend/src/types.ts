@@ -8,8 +8,8 @@ export interface BlogPost {
 export type PostTarget = 'MOCK' | 'VELOG';
 export type AiModel = 'claude-haiku-4-5' | 'claude-sonnet-5';
 export type ScheduleType = 'ONCE' | 'RECURRING';
-export type RunStatus = 'NEVER_RUN' | 'SUCCESS' | 'FAILURE';
-export type FailureReason = 'NONE' | 'SESSION_MISSING' | 'SESSION_EXPIRED' | 'AUTOMATION_ERROR';
+export type RunStatus = 'NEVER_RUN' | 'SUCCESS' | 'DRAFT_SAVED' | 'FAILURE';
+export type FailureReason = 'NONE' | 'AUTOMATION_ERROR';
 
 export interface StylePreset {
   id: string;
@@ -60,9 +60,8 @@ export interface PostHistoryEntry {
   finishedAt: string | null;
 }
 
-export interface VelogSessionStatus {
-  connected: boolean;
-  connectedAt: string | null;
-  connectInProgress: boolean;
-  busy: boolean;
+export interface TopicSuggestion {
+  title: string;
+  summary: string;
+  sourceUrl: string | null;
 }

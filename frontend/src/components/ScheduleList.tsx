@@ -20,6 +20,7 @@ function modelLabel(aiModel: string): string {
 
 function statusBadge(job: ScheduledJob) {
   if (job.lastRunStatus === 'SUCCESS') return <span className="badge badge-success">성공</span>;
+  if (job.lastRunStatus === 'DRAFT_SAVED') return <span className="badge badge-warning">생성 완료 — 이력에서 복사하세요</span>;
   if (job.lastRunStatus === 'FAILURE') return <span className="badge badge-error">{job.lastRunError || '실패'}</span>;
   return <span className="badge badge-muted">대기중</span>;
 }

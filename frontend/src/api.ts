@@ -4,7 +4,7 @@ import type {
   PostHistoryEntry,
   ScheduledJob,
   StylePreset,
-  VelogSessionStatus,
+  TopicSuggestion,
 } from './types';
 
 export const BACKEND_URL = 'http://localhost:8080';
@@ -85,18 +85,6 @@ export function fetchHistory(): Promise<PostHistoryEntry[]> {
   return request('/api/history');
 }
 
-export function fetchVelogSessionStatus(): Promise<VelogSessionStatus> {
-  return request('/api/velog/session/status');
-}
-
-export function connectVelogSession(): Promise<{ message?: string; error?: string }> {
-  return request('/api/velog/session/connect', { method: 'POST' });
-}
-
-export function confirmVelogSession(): Promise<{ message?: string; error?: string }> {
-  return request('/api/velog/session/confirm', { method: 'POST' });
-}
-
-export function cancelVelogSession(): Promise<{ message?: string; error?: string }> {
-  return request('/api/velog/session/cancel', { method: 'POST' });
+export function fetchWeeklyTopics(): Promise<TopicSuggestion[]> {
+  return request('/api/topics/weekly');
 }

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { BACKEND_URL } from '../api';
 import type { PostHistoryEntry } from '../types';
 import './components.css';
@@ -12,16 +13,20 @@ function modelLabel(aiModel: string): string {
 
 function badgeFor(entry: PostHistoryEntry) {
   if (entry.status === 'SUCCESS') return <span className="badge badge-success">성공</span>;
-  if (entry.failureReason === 'SESSION_EXPIRED') {
-    return <span className="badge badge-error">세션 만료 — 재연결 필요</span>;
-  }
-  if (entry.failureReason === 'SESSION_MISSING') {
-    return <span className="badge badge-error">Velog 미연결</span>;
-  }
+  if (entry.status === 'DRAFT_SAVED') return <span className="badge badge-warning">생성 완료 — 복사해서 붙여넣기</span>;
   return <span className="badge badge-error">실패</span>;
 }
 
 export default function PostHistoryList({ history }: Props) {
+  const [copiedId, setCopiedId] = useState<number | null>(null);
+
+  const handleCopy = async (entry: PostHistoryEntry) => {
+    const text = `${entry.title}\n\n${entry.content}`;
+    await navigator.clipboard.writeText(text);
+    setCopiedId(entry.id);
+    setTimeout(() => setCopiedId((current) => (current === entry.id ? null : current)), 2000);
+  };
+
   return (
     <section className="glass-card panel">
       <h2 className="panel-title">📚 발행 이력</h2>
@@ -49,10 +54,15 @@ export default function PostHistoryList({ history }: Props) {
               )}
             </span>
             <div className="list-item-actions">
-              {entry.publishedUrl && (
-                <a href={entry.publishedUrl} target="_blank" rel="noopener noreferrer" className="btn btn-sm">
-                  발행글 보기
-                </a>
+              {entry.target === 'VELOG' && entry.status === 'DRAFT_SAVED' && (
+                <>
+                  <button className="btn btn-sm" onClick={() => handleCopy(entry)}>
+                    {copiedId === entry.id ? '복사됨!' : '본문 복사하기'}
+                  </button>
+                  <a href="https://velog.io/write" target="_blank" rel="noopener noreferrer" className="btn btn-sm">
+                    Velog 새 글 작성 열기
+                  </a>
+                </>
               )}
               {entry.screenshotUrl && (
                 <a
