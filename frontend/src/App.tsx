@@ -36,8 +36,10 @@ export default function App() {
   const [copied, setCopied] = useState(false);
   const [logs, setLogs] = useState<string[]>([]);
   const [screenshotUrl, setScreenshotUrl] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const [genError, setGenError] = useState<string | null>(null);
+  const [genSuccess, setGenSuccess] = useState<string | null>(null);
+  const [postError, setPostError] = useState<string | null>(null);
+  const [postSuccess, setPostSuccess] = useState<string | null>(null);
   const [scheduleOpen, setScheduleOpen] = useState(false);
 
   const [schedules, setSchedules] = useState<ScheduledJob[]>([]);
@@ -58,22 +60,22 @@ export default function App() {
 
   const handleGeneratePost = async () => {
     if (!topic.trim()) {
-      setError('블로그 주제를 입력해주세요.');
+      setGenError('블로그 주제를 입력해주세요.');
       return;
     }
 
     setIsLoadingAi(true);
-    setError(null);
-    setSuccess(null);
+    setGenError(null);
+    setGenSuccess(null);
 
     try {
       const data = await generatePost(topic, stylePresetId, aiModel);
       setTitle(data.title);
       setTags(data.tags);
       setContent(data.content);
-      setSuccess('AI 블로그 글이 성공적으로 생성되었습니다!');
+      setGenSuccess('AI 블로그 글이 성공적으로 생성되었습니다!');
     } catch (err) {
-      setError(err instanceof Error ? err.message : '백엔드 서버와 통신할 수 없습니다. 서버가 켜져 있는지 확인하세요.');
+      setGenError(err instanceof Error ? err.message : '백엔드 서버와 통신할 수 없습니다. 서버가 켜져 있는지 확인하세요.');
     } finally {
       setIsLoadingAi(false);
     }
@@ -87,13 +89,13 @@ export default function App() {
 
   const handleAutoPost = async () => {
     if (!title.trim() || !content.trim()) {
-      setError('제목과 본문 내용이 채워져 있어야 합니다.');
+      setPostError('제목과 본문 내용이 채워져 있어야 합니다.');
       return;
     }
 
     setIsLoadingPost(true);
-    setError(null);
-    setSuccess(null);
+    setPostError(null);
+    setPostSuccess(null);
     setLogs([]);
     setScreenshotUrl(null);
 
@@ -105,18 +107,18 @@ export default function App() {
         if (data.screenshotUrl) {
           setScreenshotUrl(`${BACKEND_URL}${data.screenshotUrl}`);
         }
-        setSuccess(
+        setPostSuccess(
           target === 'VELOG'
             ? '생성 완료! 아래 "복사하기"로 복사한 뒤 Velog 새 글 작성 화면에 붙여넣어주세요.'
             : '모의 블로그에 자동 포스팅이 완료되었습니다!'
         );
         refreshHistory();
       } else {
-        setError('작업 중 에러가 발생했습니다. 아래 로그를 확인하세요.');
+        setPostError('작업 중 에러가 발생했습니다. 아래 로그를 확인하세요.');
         refreshHistory();
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : '요청 중 네트워크 오류가 발생했습니다.');
+      setPostError(err instanceof Error ? err.message : '요청 중 네트워크 오류가 발생했습니다.');
       setLogs((prev) => [...prev, '오류: 백엔드 서버 연결 끊김.']);
     } finally {
       setIsLoadingPost(false);
@@ -169,6 +171,13 @@ export default function App() {
               </>
             )}
           </button>
+
+          {(genError || genSuccess) && (
+            <div className="inline-status" style={{ color: genError ? '#fca5a5' : 'var(--success)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}>
+              {genError ? <AlertCircle size={17} /> : <CheckCircle size={17} />}
+              <span>{genError || genSuccess}</span>
+            </div>
+          )}
         </section>
 
         <section className="glass-card panel">
@@ -235,10 +244,10 @@ export default function App() {
             )}
           </button>
 
-          {(error || success) && (
-            <div className="inline-status" style={{ color: error ? '#fca5a5' : 'var(--success)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}>
-              {error ? <AlertCircle size={17} /> : <CheckCircle size={17} />}
-              <span>{error || success}</span>
+          {(postError || postSuccess) && (
+            <div className="inline-status" style={{ color: postError ? '#fca5a5' : 'var(--success)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}>
+              {postError ? <AlertCircle size={17} /> : <CheckCircle size={17} />}
+              <span>{postError || postSuccess}</span>
             </div>
           )}
 
