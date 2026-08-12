@@ -3,18 +3,90 @@
    classes are inert. Keeping new components readable regardless of that. */
 
 .panel {
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
+  padding: 1.4rem 1.5rem;
+  margin-bottom: 1.25rem;
 }
 
 .panel-title {
-  font-size: 1.05rem;
+  font-size: 0.95rem;
   font-weight: 700;
   margin: 0 0 1rem 0;
   color: var(--text-primary);
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.55rem;
+}
+
+.panel-title svg {
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.panel-subtitle {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin: -0.6rem 0 1rem 0;
+}
+
+.step-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 999px;
+  background: var(--primary-glow);
+  color: var(--primary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.accordion-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+  font-family: inherit;
+  text-align: left;
+}
+
+.accordion-toggle .panel-title {
+  margin-bottom: 0;
+}
+
+.accordion-chevron {
+  color: var(--text-muted);
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.accordion-chevron.open {
+  transform: rotate(180deg);
+}
+
+.accordion-body {
+  margin-top: 1.1rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.inline-status {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.log-line {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+  font-family: 'SFMono-Regular', Consolas, monospace;
 }
 
 .field {
@@ -217,25 +289,3 @@
   font-weight: 700;
 }
 
-.status-line {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.dot {
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 999px;
-  display: inline-block;
-}
-
-.dot-connected {
-  background: var(--success);
-}
-
-.dot-disconnected {
-  background: var(--text-muted);
-}
