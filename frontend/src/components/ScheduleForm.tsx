@@ -74,9 +74,7 @@ export default function ScheduleForm({ onCreated }: Props) {
   };
 
   return (
-    <section className="glass-card panel">
-      <h2 className="panel-title">🗓️ 자동 포스팅 예약</h2>
-
+    <div>
       <div className="field">
         <label className="field-label">주제</label>
         <input
@@ -155,6 +153,6 @@ export default function ScheduleForm({ onCreated }: Props) {
       <button className="btn btn-primary" onClick={handleSubmit} disabled={submitting}>
         {submitting ? '예약 생성 중...' : '예약 추가'}
       </button>
-    </section>
+    </div>
   );
 }

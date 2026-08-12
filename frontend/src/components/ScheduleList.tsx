@@ -37,8 +37,8 @@ export default function ScheduleList({ jobs, onChanged }: Props) {
   };
 
   return (
-    <section className="glass-card panel">
-      <h2 className="panel-title">📋 예약 목록</h2>
+    <div className="inline-status">
+      <p className="field-label" style={{ marginBottom: '0.7rem' }}>예약 목록</p>
       {jobs.length === 0 ? (
         <p className="empty-state">등록된 예약이 없습니다.</p>
       ) : (
@@ -67,6 +67,6 @@ export default function ScheduleList({ jobs, onChanged }: Props) {
           </div>
         ))
       )}
-    </section>
+    </div>
   );
 }

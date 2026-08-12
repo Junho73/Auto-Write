@@ -28,8 +28,7 @@ export default function PostHistoryList({ history }: Props) {
   };
 
   return (
-    <section className="glass-card panel">
-      <h2 className="panel-title">📚 발행 이력</h2>
+    <>
       {history.length === 0 ? (
         <p className="empty-state">아직 발행 이력이 없습니다.</p>
       ) : (
@@ -78,6 +77,6 @@ export default function PostHistoryList({ history }: Props) {
           </div>
         ))
       )}
-    </section>
+    </>
   );
 }
