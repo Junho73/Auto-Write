@@ -45,8 +45,8 @@ public class MockBlogPlaywrightService {
             );
             Page page = context.newPage();
 
-            logs.add("모의 블로그 로그인 페이지 이동: http://localhost:8080/mock-blog/login");
-            page.navigate("http://localhost:8080/mock-blog/login");
+            logs.add("모의 블로그 로그인 페이지 이동: http://localhost:8091/mock-blog/login");
+            page.navigate("http://localhost:8091/mock-blog/login");
 
             logs.add("아이디(admin) 및 비밀번호 입력 중...");
             page.fill("#username", "admin");

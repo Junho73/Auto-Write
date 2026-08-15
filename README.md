@@ -12,7 +12,7 @@ export ANTHROPIC_API_KEY=sk-ant-...   # 필수. 없으면 백엔드 기동 실�
 ```
 
 ```bash
-cd backend && mvn spring-boot:run   # http://localhost:8080
+cd backend && mvn spring-boot:run   # http://localhost:8091
 cd frontend && npm install && npm run dev   # http://localhost:5173 (또는 지정한 포트)
 ```
 
