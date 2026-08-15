@@ -1,4 +1,5 @@
 import type {
+  ApiKeyStatus,
   AutomationResult,
   BlogPost,
   PostHistoryEntry,
@@ -104,4 +105,34 @@ export function getTistoryWriteUrl(): string {
 
 export function setTistoryWriteUrl(url: string): void {
   localStorage.setItem(TISTORY_URL_KEY, url);
+}
+
+const DEFAULT_STYLE_KEY = 'defaultStylePresetId';
+const DEFAULT_MODEL_KEY = 'defaultAiModel';
+
+export function getDefaultStylePresetId(): string {
+  return localStorage.getItem(DEFAULT_STYLE_KEY) || '';
+}
+
+export function setDefaultStylePresetId(id: string): void {
+  localStorage.setItem(DEFAULT_STYLE_KEY, id);
+}
+
+export function getDefaultAiModel(): string {
+  return localStorage.getItem(DEFAULT_MODEL_KEY) || 'claude-haiku-4-5';
+}
+
+export function setDefaultAiModel(model: string): void {
+  localStorage.setItem(DEFAULT_MODEL_KEY, model);
+}
+
+export function fetchApiKeyStatus(): Promise<ApiKeyStatus> {
+  return request('/api/settings/api-key');
+}
+
+export function saveApiKey(apiKey: string): Promise<ApiKeyStatus> {
+  return request('/api/settings/api-key', {
+    method: 'POST',
+    body: JSON.stringify({ apiKey }),
+  });
 }

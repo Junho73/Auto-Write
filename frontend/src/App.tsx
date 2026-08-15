@@ -11,8 +11,19 @@ import {
   CalendarClock,
   ChevronDown,
   History,
+  Settings as SettingsIcon,
 } from 'lucide-react';
-import { BACKEND_URL, autoPost, fetchHistory, fetchSchedules, generatePost, getTistoryWriteUrl, setTistoryWriteUrl } from './api';
+import {
+  BACKEND_URL,
+  autoPost,
+  fetchHistory,
+  fetchSchedules,
+  generatePost,
+  getTistoryWriteUrl,
+  setTistoryWriteUrl,
+  getDefaultStylePresetId,
+  getDefaultAiModel,
+} from './api';
 import type { AiModel, AutomationResult, PostHistoryEntry, PostTarget, ScheduledJob } from './types';
 import StylePresetPicker from './components/StylePresetPicker';
 import ModelPicker from './components/ModelPicker';
@@ -21,11 +32,17 @@ import TopicDigest from './components/TopicDigest';
 import ScheduleForm from './components/ScheduleForm';
 import ScheduleList from './components/ScheduleList';
 import PostHistoryList from './components/PostHistoryList';
+import SettingsPanel from './components/SettingsPanel';
+
+function initialView(): 'dashboard' | 'settings' {
+  return new URLSearchParams(window.location.search).get('view') === 'settings' ? 'settings' : 'dashboard';
+}
 
 export default function App() {
+  const [view, setView] = useState<'dashboard' | 'settings'>(initialView);
   const [topic, setTopic] = useState('');
-  const [stylePresetId, setStylePresetId] = useState('');
-  const [aiModel, setAiModel] = useState<AiModel>('claude-haiku-4-5');
+  const [stylePresetId, setStylePresetId] = useState(getDefaultStylePresetId);
+  const [aiModel, setAiModel] = useState<AiModel>(getDefaultAiModel() as AiModel);
   const [target, setTarget] = useState<PostTarget>('MOCK');
   const [title, setTitle] = useState('');
   const [tags, setTags] = useState('');
@@ -93,6 +110,20 @@ export default function App() {
     setTistoryWriteUrl(value);
   };
 
+  const openSettings = () => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('view', 'settings');
+    window.history.pushState({}, '', url);
+    setView('settings');
+  };
+
+  const closeSettings = () => {
+    const url = new URL(window.location.href);
+    url.searchParams.delete('view');
+    window.history.pushState({}, '', url);
+    setView('dashboard');
+  };
+
   const handleAutoPost = async () => {
     if (!title.trim() || !content.trim()) {
       setPostError('제목과 본문 내용이 채워져 있어야 합니다.');
@@ -142,11 +173,19 @@ export default function App() {
             이번 주 토픽을 찾고, 글을 생성하고, 확장 프로그램으로 Velog·Tistory에 반자동 발행하세요.
           </p>
         </div>
-        <a href={`${BACKEND_URL}/mock-blog/posts`} target="_blank" rel="noopener noreferrer" className="btn btn-sm">
-          모의 블로그 보기 <ExternalLink size={14} />
-        </a>
+        <div className="pill-row">
+          <button className="btn btn-sm" onClick={openSettings}>
+            <SettingsIcon size={14} /> 설정
+          </button>
+          <a href={`${BACKEND_URL}/mock-blog/posts`} target="_blank" rel="noopener noreferrer" className="btn btn-sm">
+            모의 블로그 보기 <ExternalLink size={14} />
+          </a>
+        </div>
       </header>
 
+      {view === 'settings' && <SettingsPanel onBack={closeSettings} />}
+
+      {view === 'dashboard' && (
       <main style={{ maxWidth: '760px', margin: '0 auto' }}>
         <TopicDigest onSelect={setTopic} />
 
@@ -324,6 +363,7 @@ export default function App() {
           <PostHistoryList history={history} onChanged={refreshHistory} />
         </section>
       </main>
+      )}
     </div>
   );
 }

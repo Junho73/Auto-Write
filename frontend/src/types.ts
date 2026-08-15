@@ -65,3 +65,9 @@ export interface TopicSuggestion {
   summary: string;
   sourceUrl: string | null;
 }
+
+export interface ApiKeyStatus {
+  configured: boolean;
+  source: 'env' | 'saved' | 'none';
+  masked: string | null;
+}
