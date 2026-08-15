@@ -4,7 +4,6 @@ import com.example.blogwriter.model.StylePreset;
 import com.example.blogwriter.model.TopicSuggestion;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
@@ -28,15 +27,14 @@ public class ClaudeService {
     private static final Set<String> ALLOWED_MODELS = Set.of(MODEL_HAIKU, MODEL_SONNET);
     private static final String DEFAULT_MODEL = MODEL_HAIKU;
 
-    @Value("${anthropic.api.key}")
-    private String apiKey;
-
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final HttpClient httpClient = HttpClient.newHttpClient();
     private final StylePresetService stylePresetService;
+    private final ApiKeySettingsService apiKeySettingsService;
 
-    public ClaudeService(StylePresetService stylePresetService) {
+    public ClaudeService(StylePresetService stylePresetService, ApiKeySettingsService apiKeySettingsService) {
         this.stylePresetService = stylePresetService;
+        this.apiKeySettingsService = apiKeySettingsService;
     }
 
     public static String resolveModel(String requested) {
@@ -117,6 +115,11 @@ public class ClaudeService {
     }
 
     private JsonNode callMessages(Map<String, Object> requestBodyMap) throws Exception {
+        String apiKey = apiKeySettingsService.getEffectiveKey();
+        if (apiKey == null) {
+            throw new IllegalStateException("Claude API 키가 설정되지 않았습니다. 설정 화면에서 등록해주세요.");
+        }
+
         String requestBody = objectMapper.writeValueAsString(requestBodyMap);
 
         HttpRequest request = HttpRequest.newBuilder()
