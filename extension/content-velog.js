@@ -1,31 +1,27 @@
 // ISOLATED world — runs on https://velog.io/write*
-// Selectors verified against a real logged-in account (2026-08-10, see project history):
-//   title input:  input[placeholder="제목을 입력하세요"]
-//   tags input:   input[placeholder="태그를 입력하세요"] (fill one, press Enter, repeat)
-//   body editor:  CodeMirror 5 — filled via page-inject.js (MAIN world), not here.
+// Selectors verified against a real logged-in account:
+//   title field: [placeholder="제목을 입력하세요"] — Velog switched this from
+//     <input> to an auto-resizing <textarea> at some point after the original
+//     2026-08-10 calibration, so the selector no longer constrains the tag.
+//   tags field:  [placeholder="태그를 입력하세요"] (fill one, press Enter, repeat)
+//   body editor: CodeMirror 5 — filled via page-inject.js (MAIN world), not here.
 (function () {
   const API = 'http://localhost:8091';
   const TARGET = 'VELOG';
 
-  function setReactInputValue(input, value) {
-    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
-    setter.call(input, value);
-    input.dispatchEvent(new Event('input', { bubbles: true }));
-  }
-
   function fillTitleAndTags(title, tagsCsv) {
-    const titleInput = document.querySelector('input[placeholder="제목을 입력하세요"]');
-    if (!titleInput) {
+    const titleField = document.querySelector('[placeholder="제목을 입력하세요"]');
+    if (!titleField) {
       throw new Error('제목 입력란을 찾지 못했습니다. Velog 화면 구조가 바뀌었을 수 있습니다.');
     }
-    setReactInputValue(titleInput, title);
+    window.__blogAutowriterSetNativeValue(titleField, title);
 
     if (tagsCsv && tagsCsv.trim()) {
-      const tagInput = document.querySelector('input[placeholder="태그를 입력하세요"]');
-      if (tagInput) {
+      const tagField = document.querySelector('[placeholder="태그를 입력하세요"]');
+      if (tagField) {
         tagsCsv.split(',').map((t) => t.trim()).filter(Boolean).forEach((tag) => {
-          setReactInputValue(tagInput, tag);
-          tagInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+          window.__blogAutowriterSetNativeValue(tagField, tag);
+          tagField.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
         });
       }
     }

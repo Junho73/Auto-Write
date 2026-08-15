@@ -1,6 +1,18 @@
 // Shared banner UI for the Blog Autowriter content scripts (ISOLATED world).
 // Uses a shadow DOM host so its styles never collide with the host page's CSS.
 (function () {
+  // Sets a value on a React-controlled <input> or <textarea> via the native
+  // property setter (plain `el.value =` doesn't trigger React's change
+  // detection), then dispatches a real input event so React picks it up.
+  // Shared because both Velog and Tistory use auto-resizing <textarea>
+  // fields for what looks like plain single-line inputs.
+  window.__blogAutowriterSetNativeValue = function (el, value) {
+    const proto = el.tagName === 'TEXTAREA' ? window.HTMLTextAreaElement.prototype : window.HTMLInputElement.prototype;
+    const setter = Object.getOwnPropertyDescriptor(proto, 'value').set;
+    setter.call(el, value);
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+  };
+
   function createHost() {
     const host = document.createElement('div');
     host.id = 'blog-autowriter-overlay-host';

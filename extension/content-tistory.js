@@ -11,12 +11,11 @@
 
   const TITLE_SELECTORS = [
     '#post-title-inp',
-    'input[placeholder*="제목"]',
-    'textarea[placeholder*="제목"]',
+    '[placeholder*="제목"]',
   ];
   const TAG_SELECTORS = [
     '#tagText',
-    'input[placeholder*="태그"]',
+    '[placeholder*="태그"]',
   ];
 
   function findFirst(selectors) {
@@ -27,25 +26,18 @@
     return null;
   }
 
-  function setNativeValue(el, value) {
-    const proto = el.tagName === 'TEXTAREA' ? window.HTMLTextAreaElement.prototype : window.HTMLInputElement.prototype;
-    const setter = Object.getOwnPropertyDescriptor(proto, 'value').set;
-    setter.call(el, value);
-    el.dispatchEvent(new Event('input', { bubbles: true }));
-  }
-
   function fillTitleAndTags(title, tagsCsv) {
     const titleEl = findFirst(TITLE_SELECTORS);
     if (!titleEl) {
       throw new Error('제목 입력란을 찾지 못했습니다 — 티스토리 셀렉터 캘리브레이션이 필요합니다.');
     }
-    setNativeValue(titleEl, title);
+    window.__blogAutowriterSetNativeValue(titleEl, title);
 
     if (tagsCsv && tagsCsv.trim()) {
       const tagEl = findFirst(TAG_SELECTORS);
       if (tagEl) {
         tagsCsv.split(',').map((t) => t.trim()).filter(Boolean).forEach((tag) => {
-          setNativeValue(tagEl, tag);
+          window.__blogAutowriterSetNativeValue(tagEl, tag);
           tagEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
         });
       }
