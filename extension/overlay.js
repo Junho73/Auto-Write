@@ -36,10 +36,16 @@
           font-size: 13px;
           line-height: 1.5;
         }
-        .title { font-weight: 700; margin-bottom: 6px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .title { font-weight: 700; }
+        .settings-btn {
+          background: transparent; border: none; color: #9ca3af; cursor: pointer;
+          font-size: 14px; padding: 2px 4px; line-height: 1;
+        }
+        .settings-btn:hover { color: #f3f4f6; }
         .desc { color: #9ca3af; margin-bottom: 10px; word-break: break-word; }
         .row { display: flex; gap: 8px; }
-        button {
+        button.primary, button.ghost {
           border: none; border-radius: 8px; padding: 6px 12px; font-size: 12px;
           font-weight: 600; cursor: pointer;
         }
@@ -48,12 +54,18 @@
         button:disabled { opacity: 0.6; cursor: default; }
       </style>
       <div class="card">
-        <div class="title">Blog Autowriter</div>
+        <div class="header">
+          <div class="title">Blog Autowriter</div>
+          <button class="settings-btn" id="ba-settings" title="설정 열기">⚙</button>
+        </div>
         <div class="desc" id="ba-desc"></div>
         <div class="row" id="ba-actions"></div>
       </div>
     `;
     document.documentElement.appendChild(host);
+    shadow.getElementById('ba-settings').addEventListener('click', () => {
+      chrome.runtime.sendMessage({ type: 'OPEN_SETTINGS' });
+    });
     return shadow;
   }
 
