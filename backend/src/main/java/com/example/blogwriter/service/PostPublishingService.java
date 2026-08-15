@@ -29,13 +29,14 @@ public class PostPublishingService {
                                              String tags, String content, PostTarget target, Long scheduledJobId) {
         Instant startedAt = Instant.now();
 
-        // VELOG has no browser automation at all — Cloudflare blocks write actions from any
-        // Playwright-launched browser (verified live; see project history). The content is
-        // just generated and handed back for the user to copy into velog.io/write themselves.
-        AutomationResult result = target == PostTarget.VELOG
-            ? new AutomationResult(true, null, null, FailureReason.NONE,
-                List.of("콘텐츠 생성 완료. 아래에서 복사해서 Velog에 직접 붙여넣어주세요."))
-            : mockBlogPlaywrightService.runBlogPostingAutomation(title, tags, content);
+        // VELOG/TISTORY have no browser automation at all — Cloudflare blocks write actions
+        // from any Playwright-launched browser (verified live; see project history). Content
+        // is queued as PENDING_FILL for the companion Chrome extension to pick up and fill in
+        // on the user's own, human-driven browser tab; the final publish click stays manual.
+        AutomationResult result = target == PostTarget.MOCK
+            ? mockBlogPlaywrightService.runBlogPostingAutomation(title, tags, content)
+            : new AutomationResult(true, null, null, FailureReason.NONE,
+                List.of("확장 프로그램 대기열에 추가되었습니다. " + target + " 글쓰기 페이지를 열면 자동으로 채워집니다."));
 
         PostHistory history = new PostHistory();
         history.setScheduledJobId(scheduledJobId);
@@ -58,12 +59,14 @@ public class PostPublishingService {
         return result;
     }
 
-    // A VELOG success means content was generated and is ready to copy — not that it was published.
-    private RunStatus resolveStatus(AutomationResult result, PostTarget target) {
+    // Shared with ScheduledJobRunner so both call sites derive status the same way.
+    // A VELOG/TISTORY "success" here just means the content was generated and queued —
+    // not that it was published.
+    public RunStatus resolveStatus(AutomationResult result, PostTarget target) {
         if (!result.isSuccess()) {
             return RunStatus.FAILURE;
         }
-        return target == PostTarget.VELOG ? RunStatus.DRAFT_SAVED : RunStatus.SUCCESS;
+        return target == PostTarget.MOCK ? RunStatus.SUCCESS : RunStatus.PENDING_FILL;
     }
 
     // Used by the scheduler: generates fresh content from the topic/style, then publishes it.

@@ -52,7 +52,12 @@ public class BlogApiController {
         String topic = request.get("topic");
         String stylePresetId = request.get("stylePresetId");
         String aiModel = request.get("aiModel");
-        PostTarget target = "VELOG".equalsIgnoreCase(request.get("target")) ? PostTarget.VELOG : PostTarget.MOCK;
+        PostTarget target;
+        try {
+            target = PostTarget.valueOf(request.getOrDefault("target", "MOCK").toUpperCase());
+        } catch (IllegalArgumentException e) {
+            target = PostTarget.MOCK;
+        }
 
         if (title == null || title.trim().isEmpty() || content == null || content.trim().isEmpty()) {
             Map<String, String> error = new HashMap<>();

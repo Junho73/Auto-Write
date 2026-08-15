@@ -1,7 +1,6 @@
 package com.example.blogwriter.service;
 
 import com.example.blogwriter.model.AutomationResult;
-import com.example.blogwriter.model.PostTarget;
 import com.example.blogwriter.model.RunStatus;
 import com.example.blogwriter.model.ScheduleType;
 import com.example.blogwriter.model.ScheduledJob;
@@ -73,9 +72,7 @@ public class ScheduledJobRunner {
         try {
             AutomationResult result = postPublishingService.generateAndPublish(
                 job.getTopic(), job.getStylePresetId(), job.getAiModel(), job.getTarget(), job.getId());
-            // A VELOG success is a saved draft, not a live publish — see PostPublishingService.
-            job.setLastRunStatus(!result.isSuccess() ? RunStatus.FAILURE
-                : job.getTarget() == PostTarget.VELOG ? RunStatus.DRAFT_SAVED : RunStatus.SUCCESS);
+            job.setLastRunStatus(postPublishingService.resolveStatus(result, job.getTarget()));
             job.setLastRunError(result.isSuccess() ? null : result.getFailureReason().name());
         } catch (Exception e) {
             job.setLastRunStatus(RunStatus.FAILURE);
