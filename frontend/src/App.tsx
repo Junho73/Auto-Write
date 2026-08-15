@@ -76,6 +76,18 @@ export default function App() {
     refreshHistory();
   }, []);
 
+  // While a Velog/Tistory post is waiting on the extension (queued or filled but
+  // not yet published), poll so the badge updates on its own once the extension
+  // reports back — otherwise the only way to see it change is a manual reload.
+  const isWaitingOnExtension = history.some(
+    (entry) => entry.target !== 'MOCK' && (entry.status === 'PENDING_FILL' || entry.status === 'FILLED')
+  );
+  useEffect(() => {
+    if (!isWaitingOnExtension) return;
+    const interval = setInterval(refreshHistory, 5000);
+    return () => clearInterval(interval);
+  }, [isWaitingOnExtension]);
+
   const handleGeneratePost = async () => {
     if (!topic.trim()) {
       setGenError('블로그 주제를 입력해주세요.');
@@ -359,6 +371,11 @@ export default function App() {
         <section className="glass-card panel">
           <h2 className="panel-title">
             <History size={17} /> 발행 이력
+            {isWaitingOnExtension && (
+              <span className="badge badge-muted" style={{ fontWeight: 400 }}>
+                <RefreshCw size={11} className="animate-spin" /> 실시간 확인 중
+              </span>
+            )}
           </h2>
           <PostHistoryList history={history} onChanged={refreshHistory} />
         </section>
