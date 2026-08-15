@@ -7,7 +7,7 @@ import type {
   TopicSuggestion,
 } from './types';
 
-export const BACKEND_URL = 'http://localhost:8080';
+export const BACKEND_URL = 'http://localhost:8091';
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${BACKEND_URL}${path}`, {
@@ -87,4 +87,21 @@ export function fetchHistory(): Promise<PostHistoryEntry[]> {
 
 export function fetchWeeklyTopics(): Promise<TopicSuggestion[]> {
   return request('/api/topics/weekly');
+}
+
+export function markPublished(id: number, publishedUrl?: string): Promise<PostHistoryEntry> {
+  return request(`/api/history/${id}/mark-published`, {
+    method: 'POST',
+    body: JSON.stringify(publishedUrl ? { publishedUrl } : {}),
+  });
+}
+
+const TISTORY_URL_KEY = 'tistoryWriteUrl';
+
+export function getTistoryWriteUrl(): string {
+  return localStorage.getItem(TISTORY_URL_KEY) || '';
+}
+
+export function setTistoryWriteUrl(url: string): void {
+  localStorage.setItem(TISTORY_URL_KEY, url);
 }

@@ -23,7 +23,14 @@ export default function PostTargetToggle({ value, onChange }: Props) {
           className={`pill ${value === 'VELOG' ? 'active' : ''}`}
           onClick={() => onChange('VELOG')}
         >
-          Velog (직접 붙여넣기)
+          Velog (확장 프로그램)
+        </button>
+        <button
+          type="button"
+          className={`pill ${value === 'TISTORY' ? 'active' : ''}`}
+          onClick={() => onChange('TISTORY')}
+        >
+          Tistory (확장 프로그램)
         </button>
       </div>
     </div>

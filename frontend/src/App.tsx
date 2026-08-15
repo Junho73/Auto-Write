@@ -12,7 +12,7 @@ import {
   ChevronDown,
   History,
 } from 'lucide-react';
-import { BACKEND_URL, autoPost, fetchHistory, fetchSchedules, generatePost } from './api';
+import { BACKEND_URL, autoPost, fetchHistory, fetchSchedules, generatePost, getTistoryWriteUrl, setTistoryWriteUrl } from './api';
 import type { AiModel, AutomationResult, PostHistoryEntry, PostTarget, ScheduledJob } from './types';
 import StylePresetPicker from './components/StylePresetPicker';
 import ModelPicker from './components/ModelPicker';
@@ -41,6 +41,7 @@ export default function App() {
   const [postError, setPostError] = useState<string | null>(null);
   const [postSuccess, setPostSuccess] = useState<string | null>(null);
   const [scheduleOpen, setScheduleOpen] = useState(false);
+  const [tistoryUrl, setTistoryUrl] = useState(getTistoryWriteUrl);
 
   const [schedules, setSchedules] = useState<ScheduledJob[]>([]);
   const [history, setHistory] = useState<PostHistoryEntry[]>([]);
@@ -87,6 +88,11 @@ export default function App() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleTistoryUrlChange = (value: string) => {
+    setTistoryUrl(value);
+    setTistoryWriteUrl(value);
+  };
+
   const handleAutoPost = async () => {
     if (!title.trim() || !content.trim()) {
       setPostError('제목과 본문 내용이 채워져 있어야 합니다.');
@@ -108,9 +114,9 @@ export default function App() {
           setScreenshotUrl(`${BACKEND_URL}${data.screenshotUrl}`);
         }
         setPostSuccess(
-          target === 'VELOG'
-            ? '생성 완료! 아래 "복사하기"로 복사한 뒤 Velog 새 글 작성 화면에 붙여넣어주세요.'
-            : '모의 블로그에 자동 포스팅이 완료되었습니다!'
+          target === 'MOCK'
+            ? '모의 블로그에 자동 포스팅이 완료되었습니다!'
+            : `확장 프로그램 대기열에 추가되었습니다. ${target === 'VELOG' ? 'Velog' : 'Tistory'} 글쓰기 페이지를 열면 자동으로 채워집니다 (확장 프로그램 설치 필요).`
         );
         refreshHistory();
       } else {
@@ -133,7 +139,7 @@ export default function App() {
             Blog Autowriter
           </h1>
           <p style={{ color: 'var(--text-secondary)', margin: '0.3rem 0 0', fontSize: '0.85rem' }}>
-            이번 주 토픽을 찾고, 글을 생성하고, Velog엔 복사해서 발행하세요.
+            이번 주 토픽을 찾고, 글을 생성하고, 확장 프로그램으로 Velog·Tistory에 반자동 발행하세요.
           </p>
         </div>
         <a href={`${BACKEND_URL}/mock-blog/posts`} target="_blank" rel="noopener noreferrer" className="btn btn-sm">
@@ -217,14 +223,41 @@ export default function App() {
 
           <PostTargetToggle value={target} onChange={setTarget} />
 
-          {target === 'VELOG' && (
+          {target === 'TISTORY' && (
+            <div className="field">
+              <label className="field-label">티스토리 새 글 작성 페이지 URL (한 번만 설정)</label>
+              <input
+                type="text"
+                value={tistoryUrl}
+                onChange={(e) => handleTistoryUrlChange(e.target.value)}
+                placeholder="예: https://내블로그.tistory.com/manage/newpost/"
+                className="text-input"
+              />
+            </div>
+          )}
+
+          {target !== 'MOCK' && (
             <div className="pill-row" style={{ marginBottom: '1rem' }}>
               <button className="btn" onClick={handleCopy} disabled={!title || !content}>
-                <Copy size={15} /> {copied ? '복사됨!' : '복사하기'}
+                <Copy size={15} /> {copied ? '복사됨!' : '복사하기 (수동)'}
               </button>
-              <a href="https://velog.io/write" target="_blank" rel="noopener noreferrer" className="btn">
-                Velog 새 글 작성 열기 <ExternalLink size={15} />
-              </a>
+              {target === 'VELOG' ? (
+                <a href="https://velog.io/write" target="_blank" rel="noopener noreferrer" className="btn">
+                  Velog 새 글 작성 열기 <ExternalLink size={15} />
+                </a>
+              ) : (
+                <a
+                  href={tistoryUrl || undefined}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn"
+                  aria-disabled={!tistoryUrl}
+                  onClick={(e) => { if (!tistoryUrl) e.preventDefault(); }}
+                  title={tistoryUrl ? undefined : '위에 티스토리 글쓰기 URL을 먼저 입력해주세요'}
+                >
+                  Tistory 새 글 작성 열기 <ExternalLink size={15} />
+                </a>
+              )}
             </div>
           )}
 
@@ -239,7 +272,7 @@ export default function App() {
               </>
             ) : (
               <>
-                <Send size={18} /> {target === 'VELOG' ? '이력에 저장' : '모의 블로그에 지금 포스팅'}
+                <Send size={18} /> {target === 'MOCK' ? '모의 블로그에 지금 포스팅' : '확장 프로그램 대기열에 추가'}
               </>
             )}
           </button>
@@ -288,7 +321,7 @@ export default function App() {
           <h2 className="panel-title">
             <History size={17} /> 발행 이력
           </h2>
-          <PostHistoryList history={history} />
+          <PostHistoryList history={history} onChanged={refreshHistory} />
         </section>
       </main>
     </div>

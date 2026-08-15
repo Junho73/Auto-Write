@@ -20,7 +20,8 @@ function modelLabel(aiModel: string): string {
 
 function statusBadge(job: ScheduledJob) {
   if (job.lastRunStatus === 'SUCCESS') return <span className="badge badge-success">성공</span>;
-  if (job.lastRunStatus === 'DRAFT_SAVED') return <span className="badge badge-warning">생성 완료 — 이력에서 복사하세요</span>;
+  if (job.lastRunStatus === 'PENDING_FILL') return <span className="badge badge-warning">확장 프로그램 대기 중</span>;
+  if (job.lastRunStatus === 'FILLED') return <span className="badge badge-warning">채워짐 — 출간 대기</span>;
   if (job.lastRunStatus === 'FAILURE') return <span className="badge badge-error">{job.lastRunError || '실패'}</span>;
   return <span className="badge badge-muted">대기중</span>;
 }
@@ -48,7 +49,7 @@ export default function ScheduleList({ jobs, onChanged }: Props) {
               <span className="list-item-title">{job.topic}</span>
               <div className="list-item-actions">
                 {statusBadge(job)}
-                <span className={`badge ${job.target === 'VELOG' ? 'badge-warning' : 'badge-muted'}`}>
+                <span className={`badge ${job.target !== 'MOCK' ? 'badge-warning' : 'badge-muted'}`}>
                   {job.target}
                 </span>
               </div>

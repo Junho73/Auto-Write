@@ -5,10 +5,10 @@ export interface BlogPost {
   createdAt: string;
 }
 
-export type PostTarget = 'MOCK' | 'VELOG';
+export type PostTarget = 'MOCK' | 'VELOG' | 'TISTORY';
 export type AiModel = 'claude-haiku-4-5' | 'claude-sonnet-5';
 export type ScheduleType = 'ONCE' | 'RECURRING';
-export type RunStatus = 'NEVER_RUN' | 'SUCCESS' | 'DRAFT_SAVED' | 'FAILURE';
+export type RunStatus = 'NEVER_RUN' | 'SUCCESS' | 'PENDING_FILL' | 'FILLED' | 'FAILURE';
 export type FailureReason = 'NONE' | 'AUTOMATION_ERROR';
 
 export interface StylePreset {
