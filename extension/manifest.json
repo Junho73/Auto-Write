@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "Blog Autowriter Assistant",
+  "version": "1.0.0",
+  "description": "Blog Autowriter가 생성한 글을 Velog/Tistory 글쓰기 페이지에 자동으로 채워줍니다. 최종 발행 버튼은 직접 눌러야 합니다.",
+  "permissions": [],
+  "host_permissions": [
+    "http://localhost:8091/*",
+    "https://velog.io/*",
+    "https://*.tistory.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://velog.io/write*"],
+      "js": ["overlay.js", "content-velog.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://*.tistory.com/manage/*"],
+      "js": ["overlay.js", "content-tistory.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://velog.io/write*", "https://*.tistory.com/manage/*"],
+      "js": ["page-inject.js"],
+      "world": "MAIN",
+      "run_at": "document_idle"
+    }
+  ]
+}
