@@ -2,12 +2,10 @@
   "manifest_version": 3,
   "name": "Blog Autowriter Assistant",
   "version": "1.0.0",
-  "description": "Blog Autowriter가 생성한 글을 Velog/Tistory 글쓰기 페이지에 자동으로 채워줍니다. 최종 발행 버튼은 직접 눌러야 합니다.",
+  "description": "Blog Autowriter 대시보드를 내장하고, 생성한 글을 Velog/Tistory 글쓰기 페이지에 자동으로 채워줍니다. 최종 발행 버튼은 직접 눌러야 합니다.",
   "permissions": ["tabs"],
   "host_permissions": [
     "http://localhost:8091/*",
-    "http://127.0.0.1:3000/*",
-    "http://127.0.0.1:3001/*",
     "https://velog.io/*",
     "https://*.tistory.com/*"
   ],
