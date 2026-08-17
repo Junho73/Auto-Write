@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 // Talks to the Claude Messages API for two things: generating blog post content
 // (structured outputs, guaranteed valid JSON) and curating a weekly topic digest
@@ -22,10 +21,11 @@ import java.util.Set;
 @Service
 public class ClaudeService {
 
+    // Sonnet burned through tokens far faster than expected for what this app needs
+    // (900K+ input tokens in a single day — see project history) — Haiku only, no
+    // matter what a caller (including old ScheduledJob rows saved before this change)
+    // asks for.
     public static final String MODEL_HAIKU = "claude-haiku-4-5";
-    public static final String MODEL_SONNET = "claude-sonnet-5";
-    private static final Set<String> ALLOWED_MODELS = Set.of(MODEL_HAIKU, MODEL_SONNET);
-    private static final String DEFAULT_MODEL = MODEL_HAIKU;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final HttpClient httpClient = HttpClient.newHttpClient();
@@ -38,7 +38,7 @@ public class ClaudeService {
     }
 
     public static String resolveModel(String requested) {
-        return ALLOWED_MODELS.contains(requested) ? requested : DEFAULT_MODEL;
+        return MODEL_HAIKU;
     }
 
     public Map<String, String> generateBlogPost(String topic, String stylePresetId, String model) throws Exception {
@@ -86,17 +86,22 @@ public class ClaudeService {
     public List<TopicSuggestion> fetchWeeklyTopics() throws Exception {
         String systemPrompt = "당신은 개발자를 위한 기술 뉴스 큐레이터입니다. web_search 도구로 최근 7일 이내 " +
                 "한국 및 해외의 주요 기술/개발 관련 뉴스, 트렌드, 릴리즈 소식을 조사하세요. 조사가 끝나면 그 중 " +
-                "블로그 글감으로 좋은 주제 정확히 10개를 선정해서, 다른 설명 없이 아래 형식의 JSON 배열만 " +
+                "블로그 글감으로 좋은 주제 정확히 5개를 선정해서, 다른 설명 없이 아래 형식의 JSON 배열만 " +
                 "출력하세요: [{\"title\": \"주제 제목\", \"summary\": \"1~2문장 요약\", \"sourceUrl\": \"참고 링크\"}]";
 
         Map<String, Object> requestBodyMap = new HashMap<>();
-        requestBodyMap.put("model", MODEL_SONNET);
+        requestBodyMap.put("model", MODEL_HAIKU);
         requestBodyMap.put("max_tokens", 8192);
         requestBodyMap.put("system", systemPrompt);
-        requestBodyMap.put("tools", List.of(Map.of("type", "web_search_20260209", "name", "web_search")));
+        // Haiku (unlike Sonnet) rejects web_search without an explicit allowed_callers —
+        // it doesn't support programmatic tool calling by default.
+        requestBodyMap.put("tools", List.of(Map.of(
+                "type", "web_search_20260209",
+                "name", "web_search",
+                "allowed_callers", List.of("direct"))));
         requestBodyMap.put("messages", List.of(Map.of(
                 "role", "user",
-                "content", "이번 주 한국 개발자들이 관심 가질만한 기술/개발 주요 토픽 10개를 찾아줘.")));
+                "content", "이번 주 한국 개발자들이 관심 가질만한 기술/개발 주요 토픽 5개를 찾아줘.")));
 
         JsonNode root = callMessages(requestBodyMap);
         String text = lastTextBlock(root);
