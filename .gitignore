@@ -18,6 +18,10 @@ backend/uploads/
 frontend/node_modules/
 frontend/dist/
 
+# Frontend build bundled into the extension (run `cd frontend && npm run build`
+# to (re)generate before loading the extension unpacked — see extension/README.md)
+extension/webapp/
+
 # Local secret/profile overrides
 .env
 backend/src/main/resources/application-local.properties
