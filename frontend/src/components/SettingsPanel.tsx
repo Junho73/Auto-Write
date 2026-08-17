@@ -7,12 +7,9 @@ import {
   setTistoryWriteUrl,
   getDefaultStylePresetId,
   setDefaultStylePresetId,
-  getDefaultAiModel,
-  setDefaultAiModel,
 } from '../api';
-import type { ApiKeyStatus, AiModel } from '../types';
+import type { ApiKeyStatus } from '../types';
 import StylePresetPicker from './StylePresetPicker';
-import ModelPicker from './ModelPicker';
 import './components.css';
 
 interface Props {
@@ -27,7 +24,6 @@ export default function SettingsPanel({ onBack }: Props) {
 
   const [tistoryUrl, setTistoryUrlState] = useState(getTistoryWriteUrl);
   const [defaultStyle, setDefaultStyleState] = useState(getDefaultStylePresetId);
-  const [defaultModel, setDefaultModelState] = useState<AiModel>(getDefaultAiModel() as AiModel);
 
   const refreshStatus = () => {
     fetchApiKeyStatus().then(setStatus).catch(() => setStatus(null));
@@ -117,19 +113,15 @@ export default function SettingsPanel({ onBack }: Props) {
         <h2 className="panel-title">
           <Sparkles size={17} /> 기본 작성 스타일
         </h2>
-        <p className="panel-subtitle">글감 생성 화면을 열 때 기본으로 선택되어 있을 값입니다.</p>
+        <p className="panel-subtitle">
+          글감 생성 화면을 열 때 기본으로 선택되어 있을 값입니다. (AI 모델은 항상 Haiku 4.5 —
+          Sonnet은 토큰을 너무 많이 써서 뺐습니다.)
+        </p>
         <StylePresetPicker
           value={defaultStyle}
           onChange={(id) => {
             setDefaultStyleState(id);
             setDefaultStylePresetId(id);
-          }}
-        />
-        <ModelPicker
-          value={defaultModel}
-          onChange={(model) => {
-            setDefaultModelState(model);
-            setDefaultAiModel(model);
           }}
         />
       </section>

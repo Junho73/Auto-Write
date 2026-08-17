@@ -108,7 +108,6 @@ export function setTistoryWriteUrl(url: string): void {
 }
 
 const DEFAULT_STYLE_KEY = 'defaultStylePresetId';
-const DEFAULT_MODEL_KEY = 'defaultAiModel';
 
 export function getDefaultStylePresetId(): string {
   return localStorage.getItem(DEFAULT_STYLE_KEY) || '';
@@ -116,14 +115,6 @@ export function getDefaultStylePresetId(): string {
 
 export function setDefaultStylePresetId(id: string): void {
   localStorage.setItem(DEFAULT_STYLE_KEY, id);
-}
-
-export function getDefaultAiModel(): string {
-  return localStorage.getItem(DEFAULT_MODEL_KEY) || 'claude-haiku-4-5';
-}
-
-export function setDefaultAiModel(model: string): void {
-  localStorage.setItem(DEFAULT_MODEL_KEY, model);
 }
 
 export function fetchApiKeyStatus(): Promise<ApiKeyStatus> {

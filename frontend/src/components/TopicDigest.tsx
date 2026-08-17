@@ -38,7 +38,7 @@ export default function TopicDigest({ onSelect }: Props) {
         <Newspaper size={17} /> 이번 주 토픽
       </h2>
       <p className="panel-subtitle">
-        Claude 웹 검색으로 이번 주 개발/기술 주요 토픽 10개를 찾아옵니다. 하나 고르면 아래 주제란에 채워집니다.
+        Claude 웹 검색으로 이번 주 개발/기술 주요 토픽 5개를 찾아옵니다. 하나 고르면 아래 주제란에 채워집니다.
       </p>
       <button className="btn btn-primary" onClick={handleFetch} disabled={loading} style={{ marginBottom: topics.length > 0 ? '1rem' : 0 }}>
         {loading ? (

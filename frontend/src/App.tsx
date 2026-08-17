@@ -22,11 +22,9 @@ import {
   getTistoryWriteUrl,
   setTistoryWriteUrl,
   getDefaultStylePresetId,
-  getDefaultAiModel,
 } from './api';
 import type { AiModel, AutomationResult, PostHistoryEntry, PostTarget, ScheduledJob } from './types';
 import StylePresetPicker from './components/StylePresetPicker';
-import ModelPicker from './components/ModelPicker';
 import PostTargetToggle from './components/PostTargetToggle';
 import TopicDigest from './components/TopicDigest';
 import ScheduleForm from './components/ScheduleForm';
@@ -38,11 +36,14 @@ function initialView(): 'dashboard' | 'settings' {
   return new URLSearchParams(window.location.search).get('view') === 'settings' ? 'settings' : 'dashboard';
 }
 
+// Sonnet burned through tokens far faster than expected for what this app needs
+// (see project history) — Haiku only, no model picker anymore.
+const AI_MODEL: AiModel = 'claude-haiku-4-5';
+
 export default function App() {
   const [view, setView] = useState<'dashboard' | 'settings'>(initialView);
   const [topic, setTopic] = useState('');
   const [stylePresetId, setStylePresetId] = useState(getDefaultStylePresetId);
-  const [aiModel, setAiModel] = useState<AiModel>(getDefaultAiModel() as AiModel);
   const [target, setTarget] = useState<PostTarget>('MOCK');
   const [title, setTitle] = useState('');
   const [tags, setTags] = useState('');
@@ -99,7 +100,7 @@ export default function App() {
     setGenSuccess(null);
 
     try {
-      const data = await generatePost(topic, stylePresetId, aiModel);
+      const data = await generatePost(topic, stylePresetId, AI_MODEL);
       setTitle(data.title);
       setTags(data.tags);
       setContent(data.content);
@@ -149,7 +150,7 @@ export default function App() {
     setScreenshotUrl(null);
 
     try {
-      const data: AutomationResult = await autoPost({ topic, stylePresetId, aiModel, title, tags, content, target });
+      const data: AutomationResult = await autoPost({ topic, stylePresetId, aiModel: AI_MODEL, title, tags, content, target });
       setLogs(data.logs);
 
       if (data.success) {
@@ -216,7 +217,6 @@ export default function App() {
             />
           </div>
           <StylePresetPicker value={stylePresetId} onChange={setStylePresetId} />
-          <ModelPicker value={aiModel} onChange={setAiModel} />
           <button onClick={handleGeneratePost} disabled={isLoadingAi || isLoadingPost} className="btn btn-primary">
             {isLoadingAi ? (
               <>
