@@ -46,7 +46,13 @@ public class ClaudeService {
         StylePreset preset = stylePresetService.getOrDefault(stylePresetId);
 
         String systemPrompt = "You are a professional blog writer. Generate a blog post in Korean. " +
-                "다음 스타일 가이드를 참고하여 글의 구조와 톤을 맞추세요 (" + preset.label() + "): " + preset.description();
+                "다음 스타일 가이드를 참고하여 글의 구조와 톤을 맞추세요 (" + preset.label() + "): " + preset.description() +
+                " 사용자가 주는 주제는 완성된 문장이 아니라 '언제/어디서/무엇을/어떻게 했는지'를 간단히 적은 " +
+                "메모일 수 있습니다. 그런 경우 메모에 없는 사실을 지어내지 말고, 메모에 담긴 내용을 바탕으로 " +
+                "살을 붙여 완성된 글로 자연스럽게 확장하세요. 여러 항목을 비교하거나 구조화된 정보를 전달할 " +
+                "때는 마크다운 표를 적극 활용하고, 절차나 흐름을 설명할 때는 번호 목록이나 mermaid 코드 " +
+                "블록(```mermaid)으로 시각적으로 표현하세요 (단, mermaid는 블로그 스킨에 따라 그림 대신 " +
+                "코드로만 보일 수 있으니 과하게 의존하지 마세요). 관련 코드가 있다면 코드 블록으로 보여주세요.";
 
         Map<String, Object> schema = Map.of(
                 "type", "object",
