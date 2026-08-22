@@ -6,7 +6,7 @@
 // TODO calibrate against a real Tistory 새 글 작성 (마크다운 모드) page and replace/extend
 // the candidate lists below.
 (function () {
-  const API = 'http://localhost:8091';
+  const API = 'http://localhost:9231';
   const TARGET = 'TISTORY';
 
   const TITLE_SELECTORS = [

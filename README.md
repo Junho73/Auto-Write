@@ -18,7 +18,7 @@ export ANTHROPIC_API_KEY=sk-ant-...   # 없어도 기동은 되지만, Settings 
 ```
 
 ```bash
-cd backend && mvn spring-boot:run     # http://localhost:8091
+cd backend && mvn spring-boot:run     # http://localhost:9231
 cd frontend && npm install && npm run build   # ../extension/webapp/ 에 대시보드 빌드
 ```
 

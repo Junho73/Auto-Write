@@ -8,7 +8,7 @@ import type {
   TopicSuggestion,
 } from './types';
 
-export const BACKEND_URL = 'http://localhost:8091';
+export const BACKEND_URL = 'http://localhost:9231';
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${BACKEND_URL}${path}`, {

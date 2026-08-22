@@ -5,7 +5,7 @@
   "description": "Blog Autowriter 대시보드를 내장하고, 생성한 글을 Velog/Tistory 글쓰기 페이지에 자동으로 채워줍니다. 최종 발행 버튼은 직접 눌러야 합니다.",
   "permissions": ["tabs"],
   "host_permissions": [
-    "http://localhost:8091/*",
+    "http://localhost:9231/*",
     "https://velog.io/*",
     "https://*.tistory.com/*"
   ],
